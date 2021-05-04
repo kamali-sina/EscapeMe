@@ -19,17 +19,17 @@ class ESCAPEME_API UOpenDoor : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UOpenDoor();
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+private:
 	void OpenDoor(float DeltaTime);
 	void CloseDoor(float DeltaTime);
-private:
+	float GetTotalMassOfActors() const;
 	float StartingYaw;
 
 	UPROPERTY(EditAnywhere)
@@ -46,4 +46,6 @@ private:
 	float ClosingSpeed=2.f;
 	UPROPERTY(EditAnywhere)
 	float OpeningSpeed=1.7f;
+	UPROPERTY(EditAnywhere)
+	float RequiredMass = 70.f;
 };
