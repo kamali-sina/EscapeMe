@@ -28,6 +28,8 @@ private:
 	void Release();
 	void FindPhysicsHandle();
 	void InitInputComponent();
+	FVector GetPlayerReach() const;
+	FVector GetPlayerWorldLocation() const;
 	FHitResult GetFirstPhysicsBodyInReach() const;
 	UPROPERTY(EditAnywhere)
 	float Reach=100.f;
