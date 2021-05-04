@@ -28,6 +28,7 @@ void UGrabber::BeginPlay()
 
 void UGrabber::Grab() {
 	UE_LOG(LogTemp, Warning, TEXT("grab pressed!"));
+	FHitResult HitResult = GetFirstPhysicsBodyInReach();
 	
 }
 
