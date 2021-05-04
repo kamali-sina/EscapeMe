@@ -31,6 +31,7 @@ void UGrabber::Grab() {
 	FVector LineTraceEnd = GetPlayerReach();
 	UPrimitiveComponent* ComponentToGrab = HitResult.GetComponent();
 	if (HitResult.GetActor()) {
+		if (!PhysicsHandle) { return; }
 		PhysicsHandle->GrabComponentAtLocationWithRotation
 		(
 			ComponentToGrab,
@@ -49,13 +50,13 @@ void UGrabber::FindPhysicsHandle() {
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
 	if (!PhysicsHandle) {
 		UE_LOG(LogTemp, Error, TEXT("Class %s does not have the PhysicsHandle component assigned."), *(GetOwner()->GetName()));
+		return;
 	}
 }
 
 void UGrabber::InitInputComponent() {
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 	if (InputComponent) {
-		UE_LOG(LogTemp, Warning, TEXT("found input controller on class %s!"), *(GetOwner()->GetName()));
 		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
 		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
 	}
