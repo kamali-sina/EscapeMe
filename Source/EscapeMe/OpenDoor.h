@@ -8,6 +8,8 @@
 #include "Engine/TriggerVolume.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
+#include "Components/PrimitiveComponent.h"
+#include "Components/AudioComponent.h"
 #include "OpenDoor.generated.h"
 
 
@@ -29,15 +31,18 @@ protected:
 private:
 	void OpenDoor(float DeltaTime);
 	void CloseDoor(float DeltaTime);
+	void FindAudioComponent();
+	void LogPressurePlateError();
 	float GetTotalMassOfActors() const;
 	float StartingYaw;
+	bool IsOpenning=false;
 
 	UPROPERTY(EditAnywhere)
 	float TargetRotation = 90.f;
 
 	UPROPERTY(EditAnywhere)
-	ATriggerVolume* PressurePlate;
-	AActor* OpenerActor;
+	ATriggerVolume* PressurePlate=nullptr;
+	AActor* OpenerActor= nullptr;
 
 	float DoorLastOpened = 0.f;
 	UPROPERTY(EditAnywhere)
@@ -48,4 +53,6 @@ private:
 	float OpeningSpeed=1.7f;
 	UPROPERTY(EditAnywhere)
 	float RequiredMass = 70.f;
+	UPROPERTY()
+	UAudioComponent* DoorSound = nullptr;
 };
