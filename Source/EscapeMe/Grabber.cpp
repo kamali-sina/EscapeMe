@@ -27,13 +27,22 @@ void UGrabber::BeginPlay()
 }
 
 void UGrabber::Grab() {
-	UE_LOG(LogTemp, Warning, TEXT("grab pressed!"));
 	FHitResult HitResult = GetFirstPhysicsBodyInReach();
-	
+	FVector LineTraceEnd = GetPlayerReach();
+	UPrimitiveComponent* ComponentToGrab = HitResult.GetComponent();
+	if (HitResult.GetActor()) {
+		PhysicsHandle->GrabComponentAtLocationWithRotation
+		(
+			ComponentToGrab,
+			NAME_None,
+			LineTraceEnd,
+			HitResult.GetActor()->GetActorRotation()
+		);
+	}
 }
 
 void UGrabber::Release() {
-	UE_LOG(LogTemp, Warning, TEXT("released!"));
+	PhysicsHandle->ReleaseComponent();
 }
 
 void UGrabber::FindPhysicsHandle() {
@@ -52,7 +61,7 @@ void UGrabber::InitInputComponent() {
 	}
 }
 
-FHitResult UGrabber::GetFirstPhysicsBodyInReach() const {
+FVector UGrabber::GetPlayerReach() const{
 	FVector PlayerViewPointLocation;
 	FRotator PlayerViewPointRotation;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
@@ -60,21 +69,31 @@ FHitResult UGrabber::GetFirstPhysicsBodyInReach() const {
 		OUT PlayerViewPointRotation
 	);
 
-	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+	return PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+}
+
+FVector UGrabber::GetPlayerWorldLocation() const {
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		OUT PlayerViewPointLocation,
+		OUT PlayerViewPointRotation
+	);
+	return PlayerViewPointLocation;
+}
+
+FHitResult UGrabber::GetFirstPhysicsBodyInReach() const {
+	FVector LineTraceEnd = GetPlayerReach();
 
 	FHitResult Hit;
 	FCollisionQueryParams TraceParams(FName(TEXT("")), false, GetOwner());
 	GetWorld()->LineTraceSingleByObjectType(
 		OUT Hit,
-		PlayerViewPointLocation,
+		GetPlayerWorldLocation(),
 		LineTraceEnd,
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		TraceParams
 	);
-	AActor* ActorHit = Hit.GetActor();
-	if (ActorHit) {
-		UE_LOG(LogTemp, Warning, TEXT("actor hit: %s"), *(ActorHit->GetName()));
-	}
 	return Hit;
 }
 
@@ -82,5 +101,9 @@ FHitResult UGrabber::GetFirstPhysicsBodyInReach() const {
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (PhysicsHandle->GrabbedComponent) {
+		PhysicsHandle->SetTargetLocation(GetPlayerReach());
+	}
 }
 
